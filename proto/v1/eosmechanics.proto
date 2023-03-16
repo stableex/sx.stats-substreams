@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package stats.v1;
+package eosmechanics.v1;
 
 message ProducerUsage {
     string producer = 1;                    // the name of the block producer

@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use substreams::errors::Error;
 use substreams_antelope::{Block, ProducerAuthoritySchedule};
 
-use crate::stats::{ProducerUsage, ScheduleChange};
+use crate::eosmechanics::{ProducerUsage, ScheduleChange};
 
 /// Map a block to a ProducerUsage struct
 /// 

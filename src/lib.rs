@@ -1,7 +1,7 @@
-#[path = "pb/stats.v1.rs"]
+#[path = "pb/eosmechanics.v1.rs"]
 #[allow(dead_code)]
-pub mod stats;
-pub use self::stats::*;
+pub mod eosmechanics;
+pub use self::eosmechanics::*;
 
 mod maps;
 mod sinks;

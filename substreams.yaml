@@ -15,7 +15,7 @@ binaries:
 
 protobuf:
   files:
-    - stats.proto
+    - eosmechanics.proto
     
   importPaths:
     - proto/v1

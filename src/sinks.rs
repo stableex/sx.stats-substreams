@@ -4,7 +4,7 @@ use substreams::errors::Error;
 use substreams::log;
 use substreams_sink_prometheus::{PrometheusOperations, Counter, Gauge, Histogram, Summary};
 
-use crate::stats::{ProducerUsage, ScheduleChange};
+use crate::eosmechanics::{ProducerUsage, ScheduleChange};
 
 #[substreams::handlers::map]
 pub fn prom_out(
