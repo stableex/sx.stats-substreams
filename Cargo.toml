@@ -1,13 +1,23 @@
-[workspace]
-members = [
-    "common",
-    "eosio.ibc",
-    "eosio.token",
-    "eosmechanics",
-    "accounts",
-    "params",
-    "atomicmarket",
-]
+[package]
+name = "sx"
+version = "0.2.0"
+description = "SX Stats"
+license = "MIT OR Apache-2.0"
+edition = "2021"
+publish = false
+
+[badges]
+maintenance = { status = "actively-developed" }
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+prost = "0.11"
+prost-types = "0.11"
+substreams = "0.5"
+substreams-antelope = "0.1"
+substreams-sink-prometheus = "0.1"
 
 [workspace.dependencies]
 prost = "0.11"
@@ -15,12 +25,6 @@ prost-types = "0.11"
 substreams = "0.5"
 substreams-antelope = "0.1"
 substreams-ethereum = "0.9"
-substreams-sink-kv = "0.1"
-substreams-sink-prometheus = "0.1"
-substreams-sink-winston = "0.1"
-substreams-database-change = "1.0.0"
-substreams-entity-change = "1.0.0"
-antelope = "0.0.11"
 
 [profile.release]
 lto = true

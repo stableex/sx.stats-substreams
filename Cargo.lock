@@ -3,54 +3,16 @@
 version = 3
 
 [[package]]
-name = "accounts"
-version = "0.3.2"
-dependencies = [
- "prost",
- "prost-types",
- "serde",
- "serde_json",
- "substreams",
- "substreams-antelope",
- "substreams-sink-kv",
- "substreams-sink-prometheus",
-]
-
-[[package]]
-name = "antelope"
-version = "0.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e81aba3c13dc8fa34eebb7fe0d986990b3127b1aa0b3b3956908f960784dc2b5"
-
-[[package]]
 name = "anyhow"
 version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "224afbd727c3d6e4b90103ece64b8d1b67fbb1973b1046c2281eed3f3803f800"
 
 [[package]]
-name = "atomicmarket"
-version = "0.1.0"
-dependencies = [
- "antelope",
- "serde",
- "serde_json",
- "substreams",
- "substreams-antelope",
- "substreams-sink-prometheus",
-]
-
-[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
-
-[[package]]
-name = "base64"
-version = "0.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e1b586273c5702936fe7b7d6896644d8be71e6314cfe09d3167c95f712589e8"
 
 [[package]]
 name = "bigdecimal"
@@ -94,96 +56,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
-name = "common"
-version = "0.3.0"
-dependencies = [
- "substreams",
- "substreams-antelope",
-]
-
-[[package]]
 name = "either"
 version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fcaabb2fef8c910e7f4c7ce9f67a1283a1715879a7c230ca9d6d1ae31f16d91"
-
-[[package]]
-name = "eosio"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff2ceeebdacfb7180d6cd05f53ad83735eacbdd667d18de56fcac5b0e715a5e9"
-dependencies = [
- "eosio_macros",
- "eosio_numstr",
-]
-
-[[package]]
-name = "eosio_ibc"
-version = "0.1.0"
-dependencies = [
- "prost",
- "prost-types",
- "substreams",
- "substreams-antelope",
-]
-
-[[package]]
-name = "eosio_macros"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e4e924ca044d5cebbbd3768b5d49bbf1d6fd01fec1b3427b2e06b327d29ff384"
-dependencies = [
- "eosio_macros_internal",
- "proc-macro-hack",
-]
-
-[[package]]
-name = "eosio_macros_internal"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c328689226e43d8c3d7e50e7791e58e03b5b14863218e1b936e05d87e9b86b82"
-dependencies = [
- "eosio_numstr",
- "heck 0.3.3",
- "proc-macro-hack",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "eosio_numstr"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ebb4259a7dd6920cd7e8b3f53bac4af13d7cc22311ba2f1b1a2ea5615d371932"
-
-[[package]]
-name = "eosio_token"
-version = "0.4.2"
-dependencies = [
- "antelope",
- "eosio",
- "prost",
- "prost-types",
- "serde",
- "serde_json",
- "substreams",
- "substreams-antelope",
- "substreams-database-change",
- "substreams-sink-winston",
-]
-
-[[package]]
-name = "eosmechanics"
-version = "0.3.5"
-dependencies = [
- "prost",
- "prost-types",
- "substreams",
- "substreams-antelope",
- "substreams-sink-kv",
- "substreams-sink-prometheus",
-]
 
 [[package]]
 name = "errno"
@@ -226,15 +102,6 @@ name = "hashbrown"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8a9ee70c43aaf417c914396645a0fa852624801b24ebb7ae78fe8272889ac888"
-
-[[package]]
-name = "heck"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6d621efb26863f0e9924c6ac577e8275e5e6b77455db64ffa6c65c904e9e132c"
-dependencies = [
- "unicode-segmentation",
-]
 
 [[package]]
 name = "heck"
@@ -291,12 +158,6 @@ checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
 dependencies = [
  "either",
 ]
-
-[[package]]
-name = "itoa"
-version = "1.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "453ad9f582a441959e5f0d088b02ce04cfe8d51a8eaf077f12ac6d3e94164ca6"
 
 [[package]]
 name = "lazy_static"
@@ -383,13 +244,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "params"
-version = "0.1.0"
-dependencies = [
- "substreams",
-]
-
-[[package]]
 name = "petgraph"
 version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -408,12 +262,6 @@ dependencies = [
  "proc-macro2",
  "syn",
 ]
-
-[[package]]
-name = "proc-macro-hack"
-version = "0.5.20+deprecated"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc375e1527247fe1a97d8b7156678dfe7c1af2fc075c9a4db3690ecd2a148068"
 
 [[package]]
 name = "proc-macro2"
@@ -441,7 +289,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2c828f93f5ca4826f97fedcbd3f9a536c16b12cff3dbbb4a007f932bbad95b12"
 dependencies = [
  "bytes",
- "heck 0.4.1",
+ "heck",
  "itertools",
  "lazy_static",
  "log",
@@ -526,43 +374,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ryu"
-version = "1.0.13"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f91339c0467de62360649f8d3e185ca8de4224ff281f66000de5eb2a77a79041"
-
-[[package]]
-name = "serde"
-version = "1.0.156"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "314b5b092c0ade17c00142951e50ced110ec27cea304b1037c6969246c2469a4"
-dependencies = [
- "serde_derive",
-]
-
-[[package]]
-name = "serde_derive"
-version = "1.0.156"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7e29c4601e36bcec74a223228dce795f4cd3616341a4af93520ca1a837c087d"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "serde_json"
-version = "1.0.94"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c533a59c9d8a93a09c6ab31f0fd5e5f4dd1b8fc9434804029839884765d04ea"
-dependencies = [
- "itoa",
- "ryu",
- "serde",
-]
-
-[[package]]
 name = "substreams"
 version = "0.5.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -594,18 +405,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "substreams-database-change"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bcade6ad8e99eaee1c73ddf2a85c278a931333d33d71d52504e5ab45cc242f4c"
-dependencies = [
- "base64",
- "prost",
- "prost-types",
- "substreams",
-]
-
-[[package]]
 name = "substreams-macro"
 version = "0.5.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -615,18 +414,6 @@ dependencies = [
  "quote",
  "syn",
  "thiserror",
-]
-
-[[package]]
-name = "substreams-sink-kv"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb094d448e58a7e5ab84dac61bd8e6dcb71ddf2021bc09ba8cde73b20669872d"
-dependencies = [
- "base64",
- "prost",
- "prost-types",
- "substreams",
 ]
 
 [[package]]
@@ -640,13 +427,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "substreams-sink-winston"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5202d4f528c20e5384ac6b6e45de146f4a486a3687195738c740b305d3ed633d"
+name = "sx"
+version = "0.2.0"
 dependencies = [
  "prost",
  "prost-types",
+ "substreams",
+ "substreams-antelope",
+ "substreams-sink-prometheus",
 ]
 
 [[package]]
@@ -698,12 +486,6 @@ name = "unicode-ident"
 version = "1.0.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5464a87b239f13a63a501f2701565754bae92d243d4bb7eb12f6d57d2269bf4"
-
-[[package]]
-name = "unicode-segmentation"
-version = "1.10.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1dd624098567895118886609431a7c3b8f516e41d30e0643f03d94592a147e36"
 
 [[package]]
 name = "unicode-width"

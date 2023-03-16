@@ -1,0 +1,44 @@
+specVersion: v0.1.0
+package:
+  name: sx
+  version: v0.3.5
+  url: https://github.com/pinax-network/sx.stats-substreams
+  doc: SX Stats
+
+imports:
+  prometheus: https://github.com/pinax-network/substreams-sink-prometheus.rs/releases/download/v0.1.9/substreams-sink-prometheus-v0.1.9.spkg
+
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ./target/wasm32-unknown-unknown/release/sx.wasm
+
+protobuf:
+  files:
+    - stats.proto
+    
+  importPaths:
+    - proto/v1
+
+modules:
+  - name: map_producer_usage
+    kind: map
+    inputs:
+      - source: sf.antelope.type.v1.Block
+    output:
+      type: proto:eosmechanics.v1.ProducerUsage
+
+  - name: map_schedule_change
+    kind: map
+    inputs:
+      - source: sf.antelope.type.v1.Block
+    output:
+      type: proto:eosmechanics.v1.ScheduleChange
+
+  - name: prom_out
+    kind: map
+    inputs:
+      - map: map_producer_usage
+      - map: map_schedule_change
+    output:
+      type: proto:pinax.substreams.sink.prometheus.v1.PrometheusOperations
