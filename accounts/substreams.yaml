@@ -1,0 +1,43 @@
+specVersion: v0.1.0
+package:
+  name: "accounts"
+  version: v0.4.0
+  url: https://github.com/pinax-network/substreams
+  doc: Antelope newly created accounts
+
+imports:
+  kv: https://github.com/streamingfast/substreams-sink-kv/releases/download/v0.1.2/substreams-sink-kv-v0.1.2.spkg
+  prom: https://github.com/pinax-network/substreams-sink-prometheus.rs/releases/download/v0.1.9/substreams-sink-prometheus-v0.1.9.spkg
+
+protobuf:
+  files:
+    - accounts.proto
+  importPaths:
+    - ./proto/v1
+
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ../target/wasm32-unknown-unknown/release/accounts.wasm
+
+modules:
+  - name: map_accounts
+    kind: map
+    inputs:
+      - source: sf.antelope.type.v1.Block
+    output:
+      type: proto:antelope.accounts.v1.Accounts
+
+  - name: kv_out
+    kind: map
+    inputs:
+      - map: map_accounts
+    output:
+      type: proto:sf.substreams.sink.kv.v1.KVOperations
+
+  - name: prom_out
+    kind: map
+    inputs:
+      - map: map_accounts
+    output:
+      type: proto:pinax.substreams.sink.prometheus.v1.PrometheusOperations

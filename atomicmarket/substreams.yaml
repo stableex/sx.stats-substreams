@@ -1,0 +1,30 @@
+specVersion: v0.1.0
+package:
+  name: atomicmarket
+  version: v0.1.1
+  url: https://github.com/pinax-network/substreams
+  doc: Metrics for AtomicHub Market
+
+imports:
+  prometheus: https://github.com/pinax-network/substreams-sink-prometheus.rs/releases/download/v0.1.8/substreams-sink-prometheus-v0.1.8.spkg
+  antelope: https://github.com/pinax-network/firehose-antelope/releases/download/v0.0.5/antelope-v0.0.5.spkg
+
+binaries:
+  default:
+    type: wasm/rust-v1
+    file: ../target/wasm32-unknown-unknown/release/atomicmarket.wasm
+
+modules:
+  - name: map_actions
+    kind: map
+    inputs:
+      - source: sf.antelope.type.v1.Block
+    output:
+      type: proto:sf.antelope.type.v1.ActionTraces
+
+  - name: prom_out
+    kind: map
+    inputs:
+      - map: map_actions
+    output:
+      type: proto:pinax.substreams.sink.prometheus.v1.PrometheusOperations
