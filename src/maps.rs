@@ -2,6 +2,7 @@ use std::collections::HashSet;
 
 use substreams::errors::Error;
 use substreams_antelope::{Block, ProducerAuthoritySchedule};
+use substreams::log;
 
 use crate::eosmechanics::{ProducerUsage, ScheduleChange};
 
@@ -29,26 +30,64 @@ use crate::eosmechanics::{ProducerUsage, ScheduleChange};
 /// producer.
 #[substreams::handlers::map]
 pub fn map_producer_usage(block: Block) -> Result<ProducerUsage, Error> {
+
     // Producer is found in the block header
     let producer = block.header.as_ref().unwrap().producer.clone();
+	let mut cpu_usage = 0;
+	let mut mine = 0;
+	let mut max_mine = 0;
+	
+	//log::debug!("BLOCK");
 
     for trx in block.all_transaction_traces() {
-        // CPU usage is found in the transaction receipt
-        let cpu_usage = trx.receipt.as_ref().unwrap().cpu_usage_micro_seconds as i64;
-
+		
+		//log::debug!("TRANSACTIONS");
+		  
         // Only return a value if the transaction trace contains `eosmechanics:cpu` action
         for trace in &trx.action_traces {
+			
+            //log::debug!("TRACES");
+
             let action_trace = trace.action.as_ref().unwrap();
-            if action_trace.account != "eosmechanics" { continue; }
-            if action_trace.name != "cpu"  { continue; }
-            return Ok(ProducerUsage{
-                producer,
-                cpu_usage,
-            })
+            //log::debug!("trade={:?}", action_trace.account);
+
+            if action_trace.account != "push.sx" && action_trace.account != "fast.sx"{ 
+				//log::debug!("IGNORE");
+				continue; 
+			}
+
+            else {
+				//if action_trace.name != "cpu"  { continue; }
+				//log::debug!("FOUND");
+				max_mine += 1;
+				mine += 1;
+				cpu_usage += trx.receipt.as_ref().unwrap().cpu_usage_micro_seconds as i64;
+				break;
+				
+				//return Ok(ProducerUsage{
+				//	producer,
+				//	cpu_usage,
+				//})
+            }
         }
+
+
     }
-    // If no transaction trace contains `eosmechanics:cpu` action, return default value
-    Ok(Default::default())
+	
+	//no push.sx found
+	if max_mine == 0 {
+		//log::debug!("MISSED");
+		cpu_usage = 0;
+		max_mine = 1;
+		mine = 0;
+	}
+	
+	log::debug!("producer?={:?}", producer);
+	log::debug!("cpu_usage?={:?}", cpu_usage);
+	log::debug!("maxmine={:?}", max_mine);
+	log::debug!("mine={:?}", mine);
+
+	Ok(ProducerUsage{producer, cpu_usage, max_mine, mine})
 }
 
 #[substreams::handlers::map]

@@ -7,6 +7,10 @@ pub struct ProducerUsage {
     /// cpu usage of the eosmechanics transaction 
     #[prost(int64, tag="2")]
     pub cpu_usage: i64,
+    #[prost(int64, tag="3")]
+    pub max_mine: i64,
+    #[prost(int64, tag="4")]
+    pub mine: i64,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScheduleChange {

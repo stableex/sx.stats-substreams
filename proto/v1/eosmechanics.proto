@@ -5,6 +5,8 @@ package eosmechanics.v1;
 message ProducerUsage {
     string producer = 1;                    // the name of the block producer
     int64 cpu_usage = 2;                    // cpu usage of the eosmechanics transaction 
+    int64 max_mine = 3;
+    int64 mine = 4;
 }
 
 message ScheduleChange {

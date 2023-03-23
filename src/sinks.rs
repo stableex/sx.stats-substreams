@@ -19,6 +19,7 @@ pub fn prom_out(
     // SET producer CPU usage
     if !producer.is_empty() {
         log::info!("producer_usage={:?}", producer_usage);
+		
         let mut gauge = Gauge::from("producer_usage").with(labels.clone());
         prom_out.push(gauge.set(producer_usage.cpu_usage as f64));
 
@@ -32,6 +33,10 @@ pub fn prom_out(
         // INC action count
         prom_out.push(Counter::from("cpu_actions_total").inc());
         prom_out.push(Counter::from("cpu_actions").with(labels.clone()).inc());
+		
+		// INC SX Count
+		prom_out.push(Counter::from("max_mine").with(labels.clone()).add(producer_usage.max_mine as f64));
+		prom_out.push(Counter::from("mine").with(labels.clone()).add(producer_usage.mine as f64));
     }
 
     // SET schedule version
