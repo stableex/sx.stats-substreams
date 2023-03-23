@@ -11,6 +11,8 @@ use crate::abi;
 pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
 
     let mut prom_out = PrometheusOperations::default();
+    let producer = block.clone().header.unwrap().producer.to_string();
+    let producer_label = HashMap::from([("producer".to_string(), producer)]);
 
     for trx in block.all_transaction_traces() {
         // Action Traces
@@ -20,12 +22,21 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
             let name = action_trace.name.clone();
             let account = action_trace.account.clone();
 
-            // label
-            let account_label = HashMap::from([("account".to_string(), account.to_string())]);
+            // skip additional receivers (i.e. not the contract account)
+            if trace.receiver != account { continue; }
 
             // push to prometheus
-            if name == "mine" {
-                prom_out.push(Counter::from("mine").with(account_label).inc());
+            if name == "mine" && account == "push.sx" {
+                let mine = abi::parse_mine(&action_trace.json_data);
+                let executor = match mine {
+                    Some(mine) => mine.executor,
+                    None => { continue; }
+                };
+                let executor_label = HashMap::from([("executor".to_string(), executor.to_string())]);
+
+                prom_out.push(Counter::from("mine").inc());
+                prom_out.push(Counter::from("mine_by_producer").with(producer_label.clone()).inc());
+                prom_out.push(Counter::from("mine_by_executor").with(executor_label).inc());
 			}
         }
 

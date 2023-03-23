@@ -28,3 +28,17 @@ pub fn parse_fast_config(data_json: &str) -> Option<FastConfig> {
         Err(_) => None,
     }
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct Mine {
+    pub executor: String,
+    pub nonce: u64,
+}
+
+pub fn parse_mine(data_json: &str) -> Option<Mine> {
+    match serde_json::from_str(data_json) {
+        Ok(data) => Some(data),
+        Err(_) => None,
+    }
+}
