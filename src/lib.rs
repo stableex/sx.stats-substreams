@@ -13,10 +13,10 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
     for trx in block.all_transaction_traces() {
         for trace in &trx.action_traces {
             let action_trace = trace.action.as_ref().unwrap();
-            let contract_label = HashMap::from([("contract".to_string(), action_trace.account.to_string())]);
+            let account_label = HashMap::from([("account".to_string(), action_trace.account.to_string())]);
 
             if action_trace.name == "mine" {
-                prom_out.push(Counter::from("mine").with(contract_label).inc());
+                prom_out.push(Counter::from("mine").with(account_label).inc());
 			}
         }
     }

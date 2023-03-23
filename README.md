@@ -7,6 +7,5 @@
 
 ## Features
 
-- [ ] `push.sx` metrics
-- [ ] `fast.sx` metrics
-- [ ] ...
+- [ ] `COUNTER` for `mine` action
+  - [ ] labels using `account` name
