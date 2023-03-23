@@ -1,7 +1,24 @@
-#[path = "pb/eosmechanics.v1.rs"]
-#[allow(dead_code)]
-pub mod eosmechanics;
-pub use self::eosmechanics::*;
+use std::collections::HashMap;
 
-mod maps;
-mod sinks;
+use substreams::errors::Error;
+use substreams::log;
+use substreams_antelope::Block;
+use substreams_sink_prometheus::{PrometheusOperations, Counter, Gauge};
+
+#[substreams::handlers::map]
+pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
+
+    let mut prom_out = PrometheusOperations::default();
+
+    for trx in block.all_transaction_traces() {
+        for trace in &trx.action_traces {
+            let action_trace = trace.action.as_ref().unwrap();
+            let contract_label = HashMap::from([("contract".to_string(), action_trace.account.to_string())]);
+
+            if action_trace.name == "mine" {
+                prom_out.push(Counter::from("mine").with(contract_label).inc());
+			}
+        }
+    }
+    Ok(prom_out)
+}
