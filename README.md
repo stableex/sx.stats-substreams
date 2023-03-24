@@ -1,5 +1,7 @@
 # SX Stats `Substreams`
 
+Superseding SX Push Stats v1.6.4 (https://github.com/stableex/push.stats-sx)
+
 [![Build Status](https://github.com/pinax-network/sx.stats-substreams/actions/workflows/ci.yml/badge.svg)](https://github.com/pinax-network/sx.stats-substreams/actions/workflows/ci.yml)
 ![License](https://img.shields.io/github/license/pinax-network/sx.stats-substreams)
 
