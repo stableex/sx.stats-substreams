@@ -11,3 +11,6 @@ Superseding SX Push Stats v1.6.4 (https://github.com/stableex/push.stats-sx)
 
 - [ ] `COUNTER` for `mine` action
   - [ ] labels using `account` name
+  - [ ] labels using `producer` name
+
+- [ ] `GAUGE` for `max_mine` action
