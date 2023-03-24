@@ -26,7 +26,7 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
             if trace.receiver != account { continue; }
 
             // push to prometheus
-            if name == "mine" && account == "push.sx" {
+            if name == "mine" && (account == "push.sx" || account == "fast.sx") {
                 let mine = abi::parse_mine(&action_trace.json_data);
                 let executor = match mine {
                     Some(mine) => mine.executor,
