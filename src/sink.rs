@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use substreams::errors::Error;
 use substreams::log;
 use substreams_antelope::Block;
-use antelope::{Name, SymbolCode};
+use antelope::{Name, SymbolCode, Asset, Symbol};
 use substreams_sink_prometheus::{PrometheusOperations, Counter, Gauge};
 use crate::abi;
 
@@ -13,7 +13,6 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
     let mut prom_out = PrometheusOperations::default();
     let producer = block.clone().header.unwrap().producer.to_string();
     let producer_label = HashMap::from([("producer".to_string(), producer)]);
-	let mut maxmine = 0;
 
     for trx in block.all_transaction_traces() {
         // Action Traces
@@ -22,7 +21,36 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
             let action_trace = trace.action.as_ref().unwrap();
             let name = action_trace.name.clone();
             let account = action_trace.account.clone();
+			
+			//fee.sx profits (trader.sx -> fee.sx EOS) and skip additional transfer traces
+			if trace.receiver == "trader.sx" { 
+			
+				let transaction = abi::parse_transfer(&action_trace.json_data);
 
+                let fee = match &transaction {
+                    Some(transaction) => &transaction.to,
+                    None => { continue; }
+                };
+				
+				if fee == "fee.sx" {
+					
+				    let profit = match &transaction {
+						Some(transaction) => &transaction.quantity,
+						None => { continue; }
+					};
+															
+					let mut words = profit.split_whitespace();
+
+					let profit_amt = words.next().unwrap().parse::<f64>().unwrap();
+					let symbol = words.next().unwrap();
+					
+					let symbol_label = HashMap::from([("symbol".to_string(), symbol.to_string())]);
+					
+					prom_out.push(Counter::from("trade_profit_total").with(symbol_label.clone()).add(profit_amt));
+					
+				}
+			}
+			
             // skip additional receivers (i.e. not the contract account)
             if trace.receiver != account { continue; }
 
@@ -34,7 +62,6 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                     None => { continue; }
                 };
                 let executor_label = HashMap::from([("executor".to_string(), executor.to_string())]);
-				maxmine += 1;
                 prom_out.push(Counter::from("mine").inc());
                 prom_out.push(Counter::from("mine_by_producer").with(producer_label.clone()).inc());
                 prom_out.push(Counter::from("mine_by_executor").with(executor_label).inc());
@@ -72,13 +99,6 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
             }
         }
     }
-	
-	//add maxmine minimum by 1 if missed mining
-	if maxmine == 0 {
-		maxmine = 1;
-	}
-	
-	prom_out.push(Gauge::from("max_mine").set(maxmine as f64));
 	
     Ok(prom_out)
 }

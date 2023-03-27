@@ -42,3 +42,19 @@ pub fn parse_mine(data_json: &str) -> Option<Mine> {
         Err(_) => None,
     }
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct Transaction {
+    pub from: String,
+    pub to: String,
+    pub quantity: String,
+    pub memo: String,
+}
+
+pub fn parse_transfer(data_json: &str) -> Option<Transaction> {
+    match serde_json::from_str(data_json) {
+        Ok(data) => Some(data),    
+        Err(_) => None,
+    }
+}
