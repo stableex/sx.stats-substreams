@@ -27,12 +27,12 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
 			
 	            let transaction = abi::parse_transfer(&action_trace.json_data);
 
-                let fee = match &transaction {
-                    Some(transaction) => &transaction.to,
-                    None => { continue; }
-                };
+                    let fee = match &transaction {
+                        Some(transaction) => &transaction.to,
+                        None => { continue; }
+                    };
 				
-                if fee == "fee.sx" {	
+                    if fee == "fee.sx" {	
 	                let profit = match &transaction {
 		                Some(transaction) => &transaction.quantity,
 		                None => { continue; }
@@ -62,7 +62,7 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                 prom_out.push(Counter::from("mine").inc());
                 prom_out.push(Counter::from("mine_by_producer").with(producer_label.clone()).inc());
                 prom_out.push(Counter::from("mine_by_executor").with(executor_label).inc());
-			}
+	    }
 			
         }
 
