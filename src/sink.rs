@@ -34,8 +34,8 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
 				
                     if fee == "fee.sx" {	
 	                let profit = match &transaction {
-		                Some(transaction) => &transaction.quantity,
-		                None => { continue; }
+		            Some(transaction) => &transaction.quantity,
+		            None => { continue; }
 	                };
 															
 	                let mut words = profit.split_whitespace();
