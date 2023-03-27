@@ -22,34 +22,31 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
             let name = action_trace.name.clone();
             let account = action_trace.account.clone();
 			
-			//fee.sx profits (trader.sx -> fee.sx EOS) and skip additional transfer traces
-			if trace.receiver == "trader.sx" { 
+	        //fee.sx profits (trader.sx -> fee.sx EOS) and skip additional transfer traces
+	        if trace.receiver == "trader.sx" { 
 			
-				let transaction = abi::parse_transfer(&action_trace.json_data);
+	            let transaction = abi::parse_transfer(&action_trace.json_data);
 
                 let fee = match &transaction {
                     Some(transaction) => &transaction.to,
                     None => { continue; }
                 };
 				
-				if fee == "fee.sx" {
-					
-				    let profit = match &transaction {
-						Some(transaction) => &transaction.quantity,
-						None => { continue; }
-					};
+                if fee == "fee.sx" {	
+	                let profit = match &transaction {
+		                Some(transaction) => &transaction.quantity,
+		                None => { continue; }
+	                };
 															
-					let mut words = profit.split_whitespace();
+	                let mut words = profit.split_whitespace();
+	                let profit_amt = words.next().unwrap().parse::<f64>().unwrap();
+	                let symbol = words.next().unwrap();
+	                let symbol_label = HashMap::from([("symbol".to_string(), symbol.to_string())]);
 
-					let profit_amt = words.next().unwrap().parse::<f64>().unwrap();
-					let symbol = words.next().unwrap();
-					
-					let symbol_label = HashMap::from([("symbol".to_string(), symbol.to_string())]);
-					
-					prom_out.push(Counter::from("trade_profit_total").with(symbol_label.clone()).add(profit_amt));
-					
-				}
-			}
+	                prom_out.push(Counter::from("trade_profit_total").with(symbol_label.clone()).add(profit_amt));
+
+                }
+            }
 			
             // skip additional receivers (i.e. not the contract account)
             if trace.receiver != account { continue; }
