@@ -13,6 +13,7 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
     let mut prom_out = PrometheusOperations::default();
     let producer = block.clone().header.unwrap().producer.to_string();
     let producer_label = HashMap::from([("producer".to_string(), producer)]);
+	let mut maxmine = 0;
 
     for trx in block.all_transaction_traces() {
         // Action Traces
@@ -26,18 +27,19 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
             if trace.receiver != account { continue; }
 
             // push to prometheus
-            if name == "mine" && (account == "push.sx" || account == "fast.sx") {
+            if name == "mine" && account == "push.sx" {
                 let mine = abi::parse_mine(&action_trace.json_data);
                 let executor = match mine {
                     Some(mine) => mine.executor,
                     None => { continue; }
                 };
                 let executor_label = HashMap::from([("executor".to_string(), executor.to_string())]);
-
+				maxmine += 1;
                 prom_out.push(Counter::from("mine").inc());
                 prom_out.push(Counter::from("mine_by_producer").with(producer_label.clone()).inc());
                 prom_out.push(Counter::from("mine_by_executor").with(executor_label).inc());
 			}
+			
         }
 
         // Database Operations
@@ -70,5 +72,13 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
             }
         }
     }
+	
+	//add maxmine minimum by 1 if missed mining
+	if maxmine == 0 {
+		maxmine = 1;
+	}
+	
+	prom_out.push(Gauge::from("max_mine").set(maxmine as f64));
+	
     Ok(prom_out)
 }
