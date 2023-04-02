@@ -21,33 +21,36 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
             let action_trace = trace.action.as_ref().unwrap();
             let name = action_trace.name.clone();
             let account = action_trace.account.clone();
-			
-	        //fee.sx profits (trader.sx -> fee.sx EOS) and skip additional transfer traces
-	        if trace.receiver == "trader.sx" { 
-			
-	            let transaction = abi::parse_transfer(&action_trace.json_data);
 
-                    let fee = match &transaction {
-                        Some(transaction) => &transaction.to,
-                        None => { continue; }
-                    };
-				
-                    if fee == "fee.sx" {	
-	                let profit = match &transaction {
-		            Some(transaction) => &transaction.quantity,
-		            None => { continue; }
-	                };
-															
-	                let mut words = profit.split_whitespace();
-	                let profit_amt = words.next().unwrap().parse::<f64>().unwrap();
-	                let symbol = words.next().unwrap();
-	                let symbol_label = HashMap::from([("symbol".to_string(), symbol.to_string())]);
+            // handle token transfers
+            match abi::parse_transfer(&action_trace.json_data) {
+                Some(transfer) => {
+                    let from = transfer.from;
+                    let to = transfer.to;
+                    let amount = Asset::from(transfer.quantity.as_str()).value();
+                    let symbol = Symbol::from(transfer.quantity.as_str()).code().to_string();
+                    let symbol_label = HashMap::from([("symbol".to_string(), symbol.to_string())]);
 
-	                prom_out.push(Counter::from("trade_profit_total").with(symbol_label.clone()).add(profit_amt));
-
-                }
+                    // handle token transfers
+                    if from == "trader.sx" && to == "fee.sx" {
+                        prom_out.push(Counter::from("trade_profit_total").with(symbol_label.clone()).add(amount));
+                    }
+                    if from == "cpu.sx" && to == "eosio.rex" {
+                        prom_out.push(Counter::from("powerup_total").with(symbol_label.clone()).add(amount));
+                    }
+                    if from == "fee.sx" && to == "cpu.sx" {
+                        prom_out.push(Counter::from("fee_cpu_total").with(symbol_label.clone()).add(amount));
+                    }
+                    if from == "fee.sx" && to == "ops.sx" {
+                        prom_out.push(Counter::from("fee_ops_total").with(symbol_label.clone()).add(amount));
+                    }
+                    if from == "fee.sx" && to == "push.sx" {
+                        prom_out.push(Counter::from("fee_push_total").with(symbol_label.clone()).add(amount));
+                    }
+                },
+                None => {}
             }
-			
+
             // skip additional receivers (i.e. not the contract account)
             if trace.receiver != account { continue; }
 
@@ -62,8 +65,7 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                 prom_out.push(Counter::from("mine").inc());
                 prom_out.push(Counter::from("mine_by_producer").with(producer_label.clone()).inc());
                 prom_out.push(Counter::from("mine_by_executor").with(executor_label).inc());
-	    }
-			
+        }
         }
 
         // Database Operations
@@ -71,15 +73,15 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
             // unrwap table operation
             let contract = db_op.clone().code;
             let table_name = db_op.clone().table_name;
-        
+
             // handle config changes for fast.sx
             if contract == "fast.sx" &&  table_name == "config" {
                 // decode table
-                let raw_primary_key = Name::from(db_op.primary_key.as_str()).value;            
+                let raw_primary_key = Name::from(db_op.primary_key.as_str()).value;
                 let symcode = SymbolCode::from(raw_primary_key).to_string();
                 let account = db_op.scope.clone();
                 log::info!("contract={} primary_key={} raw_primary_key={} symcode={} account={}", contract, db_op.primary_key, raw_primary_key, symcode, account);
-                
+
                 // parse ABIs
                 log::debug!("new_data_json={:?}", db_op.new_data_json);
                 let config = abi::parse_fast_config(&db_op.new_data_json);
@@ -96,6 +98,6 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
             }
         }
     }
-	
+
     Ok(prom_out)
 }
