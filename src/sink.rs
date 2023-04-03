@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use substreams::errors::Error;
 use substreams::log;
 use substreams_antelope::Block;
-use antelope::{Name, SymbolCode, Asset, Symbol};
+use antelope::{Name, SymbolCode, Asset};
 use substreams_sink_prometheus::{PrometheusOperations, Counter, Gauge};
 use crate::abi;
 
@@ -27,8 +27,9 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                 Some(transfer) => {
                     let from = transfer.from;
                     let to = transfer.to;
-                    let amount = Asset::from(transfer.quantity.as_str()).value();
-                    let symbol = Symbol::from(transfer.quantity.as_str()).code().to_string();
+                    let quantity = Asset::from(transfer.quantity.as_str());
+                    let amount = quantity.value();
+                    let symbol = quantity.symbol.code().to_string();
                     let symbol_label = HashMap::from([("symbol".to_string(), symbol.to_string())]);
 
                     // handle token transfers
@@ -65,7 +66,7 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                 prom_out.push(Counter::from("mine").inc());
                 prom_out.push(Counter::from("mine_by_producer").with(producer_label.clone()).inc());
                 prom_out.push(Counter::from("mine_by_executor").with(executor_label).inc());
-        }
+            }
         }
 
         // Database Operations
