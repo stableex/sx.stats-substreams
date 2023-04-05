@@ -21,6 +21,9 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
             let action_trace = trace.action.as_ref().unwrap();
             let name = action_trace.name.clone();
             let account = action_trace.account.clone();
+			
+            // skip additional receivers (i.e. not the contract account)
+            if trace.receiver != account { continue; }
 
             // handle token transfers
             match abi::parse_transfer(&action_trace.json_data) {
@@ -51,9 +54,6 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                 },
                 None => {}
             }
-
-            // skip additional receivers (i.e. not the contract account)
-            if trace.receiver != account { continue; }
 
             // push to prometheus
             if name == "mine" && account == "push.sx" {
