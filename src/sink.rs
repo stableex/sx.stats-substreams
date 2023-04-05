@@ -30,6 +30,7 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                 Some(transfer) => {
                     let from = transfer.from;
                     let to = transfer.to;
+					let memo = transfer.memo;
                     let quantity = Asset::from(transfer.quantity.as_str());
                     let amount = quantity.value();
                     let symbol = quantity.symbol.code().to_string();
@@ -51,6 +52,12 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                     if from == "fee.sx" && to == "push.sx" {
                         prom_out.push(Counter::from("fee_push_total").with(symbol_label.clone()).add(amount));
                     }
+                    
+                    if from =="push.sx" && memo == "push pay"{
+			let to_label = HashMap::from([("to".to_string(), to.to_string()), ("symbol".to_string(), symbol.to_string())]);
+			prom_out.push(Counter::from("fee_push_miner").with(to_label.clone()).add(amount));						
+                    }
+                    
                 },
                 None => {}
             }
