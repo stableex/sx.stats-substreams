@@ -1,6 +1,6 @@
 [package]
 name = "sx"
-version = "2.1.3"
+version = "2.1.4"
 description = "SX Stats"
 license = "MIT OR Apache-2.0"
 edition = "2021"

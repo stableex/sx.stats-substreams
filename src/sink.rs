@@ -58,9 +58,34 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
 			prom_out.push(Counter::from("fee_push_miner").with(to_label.clone()).add(amount));						
                     }
                     
+                    if from =="push.sx" && memo == "push pay"{
+                    	let to_label = HashMap::from([("to".to_string(), to.to_string()), ("symbol".to_string(), symbol.to_string())]);
+                    	prom_out.push(Counter::from("fee_push_miner").with(to_label.clone()).add(amount));						
+                    }
                 },
                 None => {}
             }
+											
+            //fundfordream
+            if name == "log" && account == "hezdshrynage" {
+                match abi::parse_fundfordream(&action_trace.json_data) {
+                    Some(transfer) => {
+                        let m = transfer.m;
+                        let splitstr1: Vec<&str> = m.split('|').collect();
+                        let string = splitstr1[0];
+                    
+                        let splitstr2: Vec<&str> = string.split(' ').collect();
+                        let amount = splitstr2[0].parse::<f64>().unwrap();
+                        let symbol = splitstr2[1];
+                        let symbol_label = HashMap::from([("symbol".to_string(), symbol.to_string())]);
+                        prom_out.push(Counter::from("fundfordream_profit_total").with(symbol_label.clone()).add(amount as f64));
+					
+                    },
+                    None => {}
+                }
+
+		break
+	    }
 
             // push to prometheus
             if name == "mine" && account == "push.sx" {
@@ -74,6 +99,7 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                 prom_out.push(Counter::from("mine_by_producer").with(producer_label.clone()).inc());
                 prom_out.push(Counter::from("mine_by_executor").with(executor_label).inc());
             }
+			
         }
 
         // Database Operations
