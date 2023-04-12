@@ -1,7 +1,7 @@
 specVersion: v0.1.0
 package:
   name: sx
-  version: v2.1.5
+  version: v2.2.0
   url: https://github.com/pinax-network/sx.stats-substreams
   doc: SX Stats
 
