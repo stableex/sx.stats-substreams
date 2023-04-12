@@ -71,14 +71,17 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                 match abi::parse_fundfordream(&action_trace.json_data) {
                     Some(transfer) => {
                         let m = transfer.m;
-                        let splitstr1: Vec<&str> = m.split('|').collect();
-                        let string = splitstr1[0];
-                    
-                        let splitstr2: Vec<&str> = string.split(' ').collect();
-                        let amount = splitstr2[0].parse::<f64>().unwrap();
-                        let symbol = splitstr2[1];
-                        let symbol_label = HashMap::from([("symbol".to_string(), symbol.to_string())]);
-                        prom_out.push(Counter::from("fundfordream_profit_total").with(symbol_label.clone()).add(amount as f64));
+						
+			if !m.contains("profit") {
+			    let splitstr1: Vec<&str> = m.split('|').collect();
+			    let string = splitstr1[0];
+			    let splitstr2: Vec<&str> = string.split(' ').collect();
+			    let amount = splitstr2[0].parse::<f64>().unwrap();
+			    let symbol = splitstr2[1];
+			    let symbol_label = HashMap::from([("symbol".to_string(), symbol.to_string())]);
+							
+			    prom_out.push(Counter::from("fundfordream_profit_total").with(symbol_label.clone()).add(amount as f64));
+			}
 					
                     },
                     None => {}
