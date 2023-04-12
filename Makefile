@@ -27,11 +27,11 @@ info:
 
 .PHONY: run
 run:
-	substreams run -e eos.firehose.eosnation.io:9001 prom_out -s 298031857 -t +1000 -o jsonl
+	substreams run -e eos.firehose.eosnation.io:9001 prom_out -s 304252678 -t +10000 -o jsonl
 
 .PHONY: gui
 gui:
-	substreams gui -e eos.firehose.eosnation.io:9001 prom_out -s 298031857 -t +1000
+	substreams gui -e eos.firehose.eosnation.io:9001 prom_out -s 304252678 -t +10000
 
 .PHONY: sink
 sink:

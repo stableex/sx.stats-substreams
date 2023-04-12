@@ -54,7 +54,7 @@ pub struct Transaction {
 
 pub fn parse_transfer(data_json: &str) -> Option<Transaction> {
     match serde_json::from_str(data_json) {
-        Ok(data) => Some(data),    
+        Ok(data) => Some(data),
         Err(_) => None,
     }
 }
@@ -67,7 +67,7 @@ pub struct FundforDreamLog {
 
 pub fn parse_fundfordream(data_json: &str) -> Option<FundforDreamLog> {
     match serde_json::from_str(data_json) {
-        Ok(data) => Some(data),    
+        Ok(data) => Some(data),
         Err(_) => None,
     }
 }

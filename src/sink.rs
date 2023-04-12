@@ -21,7 +21,7 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
             let action_trace = trace.action.as_ref().unwrap();
             let name = action_trace.name.clone();
             let account = action_trace.account.clone();
-			
+
             // skip additional receivers (i.e. not the contract account)
             if trace.receiver != account { continue; }
 
@@ -30,67 +30,58 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                 Some(transfer) => {
                     let from = transfer.from;
                     let to = transfer.to;
-					let memo = transfer.memo;
+                    let memo = transfer.memo;
                     let quantity = Asset::from(transfer.quantity.as_str());
                     let amount = quantity.value();
                     let symbol = quantity.symbol.code().to_string();
-                    let symbol_label = HashMap::from([("symbol".to_string(), symbol.to_string())]);
+                    let transfer_label = HashMap::from([
+                        ("symbol".to_string(), symbol.to_string()),
+                        ("from".to_string(), from.to_string()),
+                        ("to".to_string(), to.to_string()),
+                        ("memo".to_string(), memo.to_string()),
+                    ]);
 
-                    // handle token transfers
+                    // profit from trader.sx
                     if from == "trader.sx" && to == "fee.sx" {
-                        prom_out.push(Counter::from("trade_profit_total").with(symbol_label.clone()).add(amount));
+                        let symbol_label = HashMap::from([
+                            ("owner".to_string(), "trader.sx".to_string()),
+                            ("symbol".to_string(), symbol.to_string())
+                        ]);
+                        prom_out.push(Counter::from("profit").with(symbol_label.clone()).add(amount));
                     }
-                    if from == "cpu.sx" && to == "eosio.rex" {
-                        prom_out.push(Counter::from("powerup_total").with(symbol_label.clone()).add(amount));
-                    }
-                    if from == "fee.sx" && to == "cpu.sx" {
-                        prom_out.push(Counter::from("fee_cpu_total").with(symbol_label.clone()).add(amount));
-                    }
-                    if from == "fee.sx" && to == "ops.sx" {
-                        prom_out.push(Counter::from("fee_ops_total").with(symbol_label.clone()).add(amount));
-                    }
-                    if from == "fee.sx" && to == "push.sx" {
-                        prom_out.push(Counter::from("fee_push_total").with(symbol_label.clone()).add(amount));
-                    }
-                    
-                    if from =="push.sx" && memo == "push pay"{
-			let to_label = HashMap::from([("to".to_string(), to.to_string()), ("symbol".to_string(), symbol.to_string())]);
-			prom_out.push(Counter::from("fee_push_miner").with(to_label.clone()).add(amount));						
-                    }
-                    
-                    if from =="push.sx" && memo == "push pay"{
-                    	let to_label = HashMap::from([("to".to_string(), to.to_string()), ("symbol".to_string(), symbol.to_string())]);
-                    	prom_out.push(Counter::from("fee_push_miner").with(to_label.clone()).add(amount));						
+
+                    // ignore accounts
+                    if to == "trader.sx" || from == "trader.sx" { continue; }
+                    if to == "curve.sx" || from == "curve.sx" { continue; }
+
+                    // include sx suffixes accounts (i.e. cpu.sx, ops.sx, push.sx)
+                    if Name::from(from.as_str()).suffix() == Name::from("sx") {
+                        prom_out.push(Counter::from("transfers").with(transfer_label.clone()).add(amount));
                     }
                 },
                 None => {}
             }
-											
-            //fundfordream
+
+            // EXTERNAL fundfordream
             if name == "log" && account == "hezdshrynage" {
                 match abi::parse_fundfordream(&action_trace.json_data) {
                     Some(transfer) => {
                         let m = transfer.m;
-						
-			if !m.contains("profit") {
-			    let splitstr1: Vec<&str> = m.split('|').collect();
-			    let string = splitstr1[0];
-			    let splitstr2: Vec<&str> = string.split(' ').collect();
-			    let amount = splitstr2[0].parse::<f64>().unwrap();
-			    let symbol = splitstr2[1];
-			    let symbol_label = HashMap::from([("symbol".to_string(), symbol.to_string())]);
-							
-			    prom_out.push(Counter::from("fundfordream_profit_total").with(symbol_label.clone()).add(amount as f64));
-			}
-					
+                        let parts: Vec<&str> = m.split('|').collect();
+                        if parts.len() > 2 { continue; }
+                        let profit = Asset::from(parts[0]);
+                        // let balance = Asset::from(parts[1]);
+                        let symbol_label = HashMap::from([
+                            ("owner".to_string(), "fundfordream".to_string()),
+                            ("symbol".to_string(), profit.symbol.code().to_string())
+                        ]);
+                        prom_out.push(Counter::from("profit").with(symbol_label.clone()).add(profit.value()));
                     },
                     None => {}
                 }
+            }
 
-		break
-	    }
-
-            // push to prometheus
+            // push mines
             if name == "mine" && account == "push.sx" {
                 let mine = abi::parse_mine(&action_trace.json_data);
                 let executor = match mine {
@@ -102,7 +93,6 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                 prom_out.push(Counter::from("mine_by_producer").with(producer_label.clone()).inc());
                 prom_out.push(Counter::from("mine_by_executor").with(executor_label).inc());
             }
-			
         }
 
         // Database Operations
