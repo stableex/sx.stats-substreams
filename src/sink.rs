@@ -63,7 +63,7 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
             }
 
             // EXTERNAL fundfordream
-            if name == "log" && account == "hezdshrynage" {
+            if name == "logs" && account == "hezdshrynage" {
                 match abi::parse_fundfordream(&action_trace.json_data) {
                     Some(transfer) => {
                         let m = transfer.m;
