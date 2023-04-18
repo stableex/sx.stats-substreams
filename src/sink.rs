@@ -13,6 +13,13 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
     let mut prom_out = PrometheusOperations::default();
     let producer = block.clone().header.unwrap().producer.to_string();
     let producer_label = HashMap::from([("producer".to_string(), producer)]);
+    
+    //let mut jamestaggartbalance: f64 = 0.0000;
+	
+    let mut jamestaggartoldeos: f64 = 0.0000;
+    let mut jamestaggartneweos: f64 = 0.0000;
+    let mut jamestaggartoldusdt: f64 = 0.0000;
+    let mut jamestaggartnewusdt: f64 = 0.0000;
 
     for trx in block.all_transaction_traces() {
         // Action Traces
@@ -21,6 +28,7 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
             let action_trace = trace.action.as_ref().unwrap();
             let name = action_trace.name.clone();
             let account = action_trace.account.clone();
+			
 
             // skip additional receivers (i.e. not the contract account)
             if trace.receiver != account { continue; }
@@ -58,6 +66,7 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                     if Name::from(from.as_str()).suffix() == Name::from("sx") {
                         prom_out.push(Counter::from("transfers").with(transfer_label.clone()).add(amount));
                     }
+
                 },
                 None => {}
             }
@@ -80,7 +89,7 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                     None => {}
                 }
             }
-
+			
             // push mines
             if name == "mine" && account == "push.sx" {
                 let mine = abi::parse_mine(&action_trace.json_data);
@@ -100,13 +109,64 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
             // unrwap table operation
             let contract = db_op.clone().code;
             let table_name = db_op.clone().table_name;
+            let account = db_op.scope.clone();
+			
+            // EXTERNAL jamestaggart get first and laast balance (EOS, USDT)
+            if contract == "noloss111111" {
+					
+	    match abi::parse_jamestaggart(&db_op.clone().old_data_json) {
+		Some(json) => {
+		    let balance = json.balance;
+		    let balances = Asset::from(balance.as_str());
+		    let symbol = balances.symbol.code().to_string();
+		    let value = balances.value();
+			
+                    if symbol == "EOS" {
+	                if jamestaggartoldeos == 0.0000 {
+		            jamestaggartoldeos = value;
+	                }
+                    }
+
+                    if symbol == "USDT" {
+	                if jamestaggartoldusdt == 0.0000 {
+		            jamestaggartoldusdt = value;
+	                }
+                    }
+                },
+                None => {}
+            }
+	
+            match abi::parse_jamestaggart(&db_op.clone().new_data_json) {
+                Some(json) => {
+                    let balance = json.balance;
+                    let balances = Asset::from(balance.as_str());
+                    let symbol = balances.symbol.code().to_string();
+                    let value = balances.value();
+
+                    if symbol == "EOS" {
+                        jamestaggartneweos = value;
+
+                        if jamestaggartoldeos == 0.0000 {
+	                    jamestaggartoldeos = value;
+                        }
+                    }
+                    else if symbol == "USDT" {
+                        jamestaggartnewusdt = value;
+
+                        if jamestaggartoldusdt == 0.0000 {
+	                    jamestaggartoldusdt = value;
+                        }
+                    }
+                },
+                None => {}
+            }
+            }
 
             // handle config changes for fast.sx
-            if contract == "fast.sx" &&  table_name == "config" {
+            if contract == "fast.sx" && table_name == "config" {
                 // decode table
                 let raw_primary_key = Name::from(db_op.primary_key.as_str()).value;
                 let symcode = SymbolCode::from(raw_primary_key).to_string();
-                let account = db_op.scope.clone();
                 log::info!("contract={} primary_key={} raw_primary_key={} symcode={} account={}", contract, db_op.primary_key, raw_primary_key, symcode, account);
 
                 // parse ABIs
@@ -124,7 +184,33 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                 prom_out.push(Gauge::from("fast_max_mine").set(max_mine as f64));
             }
         }
+
     }
 
+    // EXTERNAL jamestaggart finalize delta (EOS, USDT)
+    if (jamestaggartneweos > jamestaggartoldeos) && jamestaggartoldeos != 0.0000 {
+        let symbol_label = HashMap::from([
+	    ("owner".to_string(), "jamestaggart".to_string()),
+	    ("symbol".to_string(), "EOS".to_string())
+        ]);
+        
+        //Floating-Point Arithmetic issue (4 decimal points)
+        let profit: f64 = ((jamestaggartneweos - jamestaggartoldeos) * 10000.0).round() / 10000.0;
+        prom_out.push(Counter::from("profit").with(symbol_label.clone()).add(profit));
+    }
+
+    if (jamestaggartnewusdt > jamestaggartoldusdt) && jamestaggartoldusdt != 0.0000{
+        let symbol_label = HashMap::from([
+	    ("owner".to_string(), "jamestaggart".to_string()),
+	    ("symbol".to_string(), "USDT".to_string())
+        ]);
+
+        //Floating-Point Arithmetic issue (4 decimal points)
+        let profit: f64 = ((jamestaggartnewusdt - jamestaggartoldusdt) * 10000.0).round() / 10000.0;
+
+        prom_out.push(Counter::from("profit").with(symbol_label.clone()).add(profit));
+    } 
+		
     Ok(prom_out)
 }
+

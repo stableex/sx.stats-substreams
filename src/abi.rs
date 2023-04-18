@@ -71,3 +71,18 @@ pub fn parse_fundfordream(data_json: &str) -> Option<FundforDreamLog> {
         Err(_) => None,
     }
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct JamestaggartLog {
+    pub balance: String,
+    pub min_profit: String,
+    pub user: String,
+}
+
+pub fn parse_jamestaggart(data_json: &str) -> Option<JamestaggartLog> {
+    match serde_json::from_str(data_json) {
+        Ok(data) => Some(data),
+        Err(_) => None,
+    }
+}
