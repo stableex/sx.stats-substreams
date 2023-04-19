@@ -131,9 +131,9 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
                 Some(balance) => {
                     if balance.amount == 0 { continue };
                     if balance.amount > 0 {
-                        prom_out.push(Counter::from("balance.increase").with(balance_label.clone()).add(balance.value()));
+                        prom_out.push(Counter::from("balance_increase").with(balance_label.clone()).add(balance.value()));
                     } else {
-                        prom_out.push(Counter::from("balance.decrease").with(balance_label.clone()).add(balance.value() * -1.0));
+                        prom_out.push(Counter::from("balance_decrease").with(balance_label.clone()).add(balance.value() * -1.0));
                     }
                 },
                 None => {}
