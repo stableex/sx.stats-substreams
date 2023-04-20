@@ -18,11 +18,18 @@ pub fn get_balance_delta(block: Block, account: Name, ext_sym: ExtendedSymbol) -
             if table_name != "accounts" { continue; }
             if code != contract { continue; }
             if account != scope { continue; }
-            let balance = abi::parse_balance(db_op.new_data_json.as_str());
-            if balance.is_none() { continue; }
-            let balance = Asset::from(balance.unwrap().balance.as_str());
-            if balance.symbol != sym { continue; }
-            balance_changes.push(balance.amount);
+
+            let balanceold = abi::parse_balance(db_op.old_data_json.as_str());
+            if balanceold.is_none() { continue; }
+            let balanceold = Asset::from(balanceold.unwrap().balance.as_str());
+            if balanceold.symbol != sym { continue; }
+            balance_changes.push(balanceold.amount);
+
+            let balancenew = abi::parse_balance(db_op.new_data_json.as_str());
+            if balancenew.is_none() { continue; }
+            let balancenew = Asset::from(balancenew.unwrap().balance.as_str());
+            if balancenew.symbol != sym { continue; }
+            balance_changes.push(balancenew.amount);
         }
     }
     if balance_changes.len() == 0 { return None; }
