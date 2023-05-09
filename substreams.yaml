@@ -1,7 +1,7 @@
 specVersion: v0.1.0
 package:
   name: sx
-  version: v2.3.2
+  version: v2.3.3
   url: https://github.com/pinax-network/sx.stats-substreams
   doc: SX Stats
 
@@ -17,6 +17,7 @@ modules:
   - name: prom_out
     kind: map
     inputs:
+      - params: string
       - source: sf.antelope.type.v1.Block
     output:
       type: proto:pinax.substreams.sink.prometheus.v1.PrometheusOperations

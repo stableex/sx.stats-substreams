@@ -9,7 +9,7 @@ use crate::abi;
 use crate::utils;
 
 #[substreams::handlers::map]
-pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
+pub fn prom_out(params: String, block: Block) -> Result<PrometheusOperations, Error> {
 
     let mut prom_out = PrometheusOperations::default();
     let producer = block.clone().header.unwrap().producer.to_string();
@@ -108,12 +108,12 @@ pub fn prom_out(block: Block) -> Result<PrometheusOperations, Error> {
         }
     }
 
-    // balance changes
-    let accounts = vec![
-        Name::from("fee.sx"),
-        Name::from("fundfordream"),
-        Name::from("taggartdagny")
-    ];
+    let mut accounts = vec![];
+
+    for substring in params.split('|') {
+        accounts.push(Name::from(substring));
+    }
+    
     let ext_symbols = vec![
         ExtendedSymbol::from_extended(Symbol::from("4,EOS"), Name::from("eosio.token")),
         ExtendedSymbol::from_extended(Symbol::from("4,USDT"), Name::from("tethertether")),
