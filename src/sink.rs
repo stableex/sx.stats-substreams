@@ -110,6 +110,18 @@ pub fn prom_out(params: String, block: Block) -> Result<PrometheusOperations, Er
 
     let mut accounts = vec![];
 
+    // query-params
+    let filter_account = utils::create_filters(params.as_str(), "account");
+    //let filter_symcode = utils::create_filters(params.as_str(), "symcode");
+    //let filter_contract = utils::create_filters(params.as_str(), "contract");
+
+    log::debug!("params={:?}", &params);
+
+    log::debug!("filter_account={:?}", &filter_account);
+    //log::debug!("filter_symcode={:?}", &filter_symcode);
+    //log::debug!("filter_contract={:?}", &filter_contract);
+
+
     for substring in params.split('|') {
         accounts.push(Name::from(substring));
     }
@@ -122,6 +134,9 @@ pub fn prom_out(params: String, block: Block) -> Result<PrometheusOperations, Er
     for account in accounts {
         for ext_symbol in ext_symbols.clone() {
             let balance = utils::get_balance_delta(block.clone(), account, ext_symbol);
+
+            log::debug!("balance???={:?}", &balance);
+
             let balance_label = HashMap::from([
                 ("account".to_string(), account.to_string()),
                 ("contract".to_string(), ext_symbol.get_contract().to_string()),
