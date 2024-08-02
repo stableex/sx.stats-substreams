@@ -1,21 +1,20 @@
 use std::collections::HashMap;
 
+use crate::abi;
+use crate::utils;
+use antelope::{Asset, ExtendedSymbol, Name, Symbol, SymbolCode};
 use substreams::errors::Error;
 use substreams::log;
 use substreams_antelope::Block;
-use antelope::{Name, SymbolCode, Symbol, ExtendedSymbol, Asset};
-use substreams_sink_prometheus::{PrometheusOperations, Counter, Gauge};
-use crate::abi;
-use crate::utils;
+use substreams_sink_prometheus::{Counter, Gauge, PrometheusOperations};
 
 #[substreams::handlers::map]
 pub fn prom_out(params: String, block: Block) -> Result<PrometheusOperations, Error> {
-
     let mut prom_out = PrometheusOperations::default();
     let producer = block.clone().header.unwrap().producer.to_string();
     let producer_label = HashMap::from([("producer".to_string(), producer)]);
 
-    for trx in block.all_transaction_traces() {
+    for trx in block.transaction_traces() {
         // Action Traces
         for trace in &trx.action_traces {
             // unwrap action_trace
@@ -24,7 +23,9 @@ pub fn prom_out(params: String, block: Block) -> Result<PrometheusOperations, Er
             let account = action_trace.account.clone();
 
             // skip additional receivers (i.e. not the contract account)
-            if trace.receiver != account { continue; }
+            if trace.receiver != account {
+                continue;
+            }
 
             // handle token transfers
             match abi::parse_transfer(&action_trace.json_data) {
@@ -46,20 +47,32 @@ pub fn prom_out(params: String, block: Block) -> Result<PrometheusOperations, Er
                     if from == "trader.sx" && to == "fee.sx" {
                         let symbol_label = HashMap::from([
                             ("owner".to_string(), "trader.sx".to_string()),
-                            ("symbol".to_string(), symbol.to_string())
+                            ("symbol".to_string(), symbol.to_string()),
                         ]);
-                        prom_out.push(Counter::from("profit").with(symbol_label.clone()).add(amount));
+                        prom_out.push(
+                            Counter::from("profit")
+                                .with(symbol_label.clone())
+                                .add(amount),
+                        );
                     }
 
                     // ignore accounts
-                    if to == "trader.sx" || from == "trader.sx" { continue; }
-                    if to == "curve.sx" || from == "curve.sx" { continue; }
+                    if to == "trader.sx" || from == "trader.sx" {
+                        continue;
+                    }
+                    if to == "curve.sx" || from == "curve.sx" {
+                        continue;
+                    }
 
                     // include sx suffixes accounts (i.e. cpu.sx, ops.sx, push.sx)
                     if Name::from(from.as_str()).suffix() == Name::from("sx") {
-                        prom_out.push(Counter::from("transfers").with(transfer_label.clone()).add(amount));
+                        prom_out.push(
+                            Counter::from("transfers")
+                                .with(transfer_label.clone())
+                                .add(amount),
+                        );
                     }
-                },
+                }
                 None => {}
             }
 
@@ -68,11 +81,18 @@ pub fn prom_out(params: String, block: Block) -> Result<PrometheusOperations, Er
                 let mine = abi::parse_mine(&action_trace.json_data);
                 let executor = match mine {
                     Some(mine) => mine.executor,
-                    None => { continue; }
+                    None => {
+                        continue;
+                    }
                 };
-                let executor_label = HashMap::from([("executor".to_string(), executor.to_string())]);
+                let executor_label =
+                    HashMap::from([("executor".to_string(), executor.to_string())]);
                 prom_out.push(Counter::from("mine").inc());
-                prom_out.push(Counter::from("mine_by_producer").with(producer_label.clone()).inc());
+                prom_out.push(
+                    Counter::from("mine_by_producer")
+                        .with(producer_label.clone())
+                        .inc(),
+                );
                 prom_out.push(Counter::from("mine_by_executor").with(executor_label).inc());
             }
         }
@@ -89,18 +109,27 @@ pub fn prom_out(params: String, block: Block) -> Result<PrometheusOperations, Er
                 // decode table
                 let raw_primary_key = Name::from(db_op.primary_key.as_str()).value;
                 let symcode = SymbolCode::from(raw_primary_key).to_string();
-                log::info!("contract={} primary_key={} raw_primary_key={} symcode={} account={}", contract, db_op.primary_key, raw_primary_key, symcode, account);
+                log::info!(
+                    "contract={} primary_key={} raw_primary_key={} symcode={} account={}",
+                    contract,
+                    db_op.primary_key,
+                    raw_primary_key,
+                    symcode,
+                    account
+                );
 
                 // parse ABIs
                 log::debug!("new_data_json={:?}", db_op.new_data_json);
                 let config = abi::parse_fast_config(&db_op.new_data_json);
                 let max_mine = match config {
                     Some(config) => config.max_mine,
-                    None => 0
+                    None => 0,
                 };
 
                 // Skip if no balance found
-                if max_mine == 0 { continue; }
+                if max_mine == 0 {
+                    continue;
+                }
 
                 // push to prometheus
                 prom_out.push(Gauge::from("fast_max_mine").set(max_mine as f64));
@@ -121,11 +150,10 @@ pub fn prom_out(params: String, block: Block) -> Result<PrometheusOperations, Er
     //log::debug!("filter_symcode={:?}", &filter_symcode);
     //log::debug!("filter_contract={:?}", &filter_contract);
 
-
     for substring in params.split('|') {
         accounts.push(Name::from(substring));
     }
-    
+
     let ext_symbols = vec![
         ExtendedSymbol::from_extended(Symbol::from("4,EOS"), Name::from("eosio.token")),
         ExtendedSymbol::from_extended(Symbol::from("4,USDT"), Name::from("tethertether")),
@@ -139,18 +167,34 @@ pub fn prom_out(params: String, block: Block) -> Result<PrometheusOperations, Er
 
             let balance_label = HashMap::from([
                 ("account".to_string(), account.to_string()),
-                ("contract".to_string(), ext_symbol.get_contract().to_string()),
-                ("symbol".to_string(), ext_symbol.get_symbol().code().to_string())
+                (
+                    "contract".to_string(),
+                    ext_symbol.get_contract().to_string(),
+                ),
+                (
+                    "symbol".to_string(),
+                    ext_symbol.get_symbol().code().to_string(),
+                ),
             ]);
             match balance {
                 Some(balance) => {
-                    if balance.amount == 0 { continue };
+                    if balance.amount == 0 {
+                        continue;
+                    };
                     if balance.amount > 0 {
-                        prom_out.push(Counter::from("balance_increase").with(balance_label.clone()).add(balance.value()));
+                        prom_out.push(
+                            Counter::from("balance_increase")
+                                .with(balance_label.clone())
+                                .add(balance.value()),
+                        );
                     } else {
-                        prom_out.push(Counter::from("balance_decrease").with(balance_label.clone()).add(balance.value() * -1.0));
+                        prom_out.push(
+                            Counter::from("balance_decrease")
+                                .with(balance_label.clone())
+                                .add(balance.value() * -1.0),
+                        );
                     }
-                },
+                }
                 None => {}
             }
         }

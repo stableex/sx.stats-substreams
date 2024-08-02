@@ -27,17 +27,17 @@ info:
 
 .PHONY: run
 run:
-	substreams run -e eos.firehose.eosnation.io:9001 prom_out -s 304252678 -t +10000 -o jsonl
+	substreams run -e eos.substreams.pinax.network:443 prom_out -s 304252678 -t +10000 -o jsonl
 
 .PHONY: gui
 gui:
-	substreams gui -e eos.firehose.eosnation.io:9001 prom_out -s 304252678 -t +10000 
+	substreams gui -e eos.substreams.pinax.network:443 prom_out -s 304252678 -t +10000
 
 .PHONY: param
 param:
-	substreams gui -e eos.firehose.eosnation.io:9001 prom_out -s 304252678 -t +10000 -p prom_out="to=fee.sx"	
+	substreams gui -e eos.substreams.pinax.network:443 prom_out -s 304252678 -t +10000 -p prom_out="to=fee.sx"
 
 .PHONY: sink
 sink:
-	substreams-sink-prometheus run -e eos.firehose.eosnation.io:9001 https://github.com/pinax-network/substreams/releases/download/eosmechanics-v0.3.5/eosmechanics-v0.3.5.spkg -s 292103130
+	substreams-sink-prometheus run -e eos.substreams.pinax.network:443 https://github.com/pinax-network/substreams/releases/download/eosmechanics-v0.3.5/eosmechanics-v0.3.5.spkg -s 292103130
 

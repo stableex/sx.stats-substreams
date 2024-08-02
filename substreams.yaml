@@ -1,12 +1,12 @@
 specVersion: v0.1.0
 package:
   name: sx
-  version: v2.4.0
+  version: v2.4.1
   url: https://github.com/pinax-network/sx.stats-substreams
   doc: SX Stats
 
 imports:
-  prometheus: https://github.com/pinax-network/substreams-sink-prometheus.rs/releases/download/v0.1.9/substreams-sink-prometheus-v0.1.9.spkg
+  prometheus: https://github.com/pinax-network/substreams-sink-prometheus.rs/releases/download/v0.2.0/substreams-sink-prometheus-v0.2.0.spkg
 
 binaries:
   default:

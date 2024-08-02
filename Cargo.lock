@@ -4,9 +4,9 @@ version = 3
 
 [[package]]
 name = "antelope"
-version = "0.1.5"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0767d954ae59f7863fd1ddf2dfc12270ddbc77b0e2a77a32bbc02c37bdd17bac"
+checksum = "3afb1548e69035d473cbc516f36debd5a32afacec13e1d636fce19f890aa621d"
 dependencies = [
  "time",
 ]
@@ -292,10 +292,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "proc-macro2"
-version = "1.0.58"
+name = "prettyplease"
+version = "0.2.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa1fb82fc0c281dd9671101b66b771ebbe1eaf967b96ac8740dcba4b70005ca8"
+checksum = "5f12335488a2f3b0a83b14edad48dca9879ce89b2edd10e80237e4e852dd645e"
+dependencies = [
+ "proc-macro2",
+ "syn 2.0.72",
+]
+
+[[package]]
+name = "proc-macro2"
+version = "1.0.86"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5e719e8df665df0d1c8fbfd238015744736151d4445ec0836b8e628aae103b77"
 dependencies = [
  "unicode-ident",
 ]
@@ -323,7 +333,7 @@ dependencies = [
  "log",
  "multimap",
  "petgraph",
- "prettyplease",
+ "prettyplease 0.1.25",
  "prost",
  "prost-types",
  "regex",
@@ -356,9 +366,9 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.27"
+version = "1.0.36"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f4f29d145265ec1c483c7c654450edde0bfe043d3938d6972630663356d9500"
+checksum = "0fa76aaf39101c457836aec0ce2316dbdc3ab723cdda1c6bd4e6ad4208acaca7"
 dependencies = [
  "proc-macro2",
 ]
@@ -424,7 +434,7 @@ checksum = "8c805777e3930c8883389c602315a24224bcc738b63905ef87cd1420353ea93e"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.16",
+ "syn 2.0.72",
 ]
 
 [[package]]
@@ -461,12 +471,42 @@ dependencies = [
 
 [[package]]
 name = "substreams-antelope"
-version = "0.1.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d88fe05753c5e07d318dcd76267ce74a1ccc7112d512efc210d1458991bd14b"
+checksum = "eba9c8e2389d2f82d4aeb97d69acf47947216788f7b2615b8de2d851e48ce063"
+dependencies = [
+ "substreams",
+ "substreams-antelope-abigen",
+ "substreams-antelope-core",
+]
+
+[[package]]
+name = "substreams-antelope-abigen"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57b26cd343be2f960c1fdc48ea5e04bee4a902fa0faadee8d1a39a95e8f560ab"
+dependencies = [
+ "anyhow",
+ "heck",
+ "prettyplease 0.2.20",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_json",
+ "substreams-antelope-core",
+ "syn 2.0.72",
+]
+
+[[package]]
+name = "substreams-antelope-core"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fbf9406cec602c517706d768535a26107fda07fc630fc2c814ddac9937d846a1"
 dependencies = [
  "prost",
+ "prost-build",
  "prost-types",
+ "substreams",
 ]
 
 [[package]]
@@ -505,7 +545,7 @@ dependencies = [
 
 [[package]]
 name = "sx"
-version = "2.4.0"
+version = "2.4.1"
 dependencies = [
  "antelope",
  "serde",
@@ -529,9 +569,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.16"
+version = "2.0.72"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a6f671d4b5ffdb8eadec19c0ae67fe2639df8684bd7bc4b83d986b8db549cf01"
+checksum = "dc4b9b9bf2add8093d3f2c0204471e951b2285580335de42f9d2534f3ae7a8af"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -568,7 +608,7 @@ checksum = "f9456a42c5b0d803c8cd86e73dd7cc9edd429499f37a3550d286d5e86720569f"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.16",
+ "syn 2.0.72",
 ]
 
 [[package]]
